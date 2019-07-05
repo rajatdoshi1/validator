@@ -24,7 +24,7 @@ node() {
         checkout scm
     }
     stage("validate schema"){
-            utils.validateXMLSchema("schema.xsd", "Create_New_AD_Account.xml" )
+        validateXMLSchema("schema.xsd", "Create_New_AD_Account.xml" )
     }
     echo 'Processing Ended'
 }
