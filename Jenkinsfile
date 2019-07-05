@@ -15,11 +15,8 @@ import javax.xml.validation.Validator;
 import org.xml.sax.SAXException;
 
 
-def artifactoryCredentials = 'css-intel-artifactory-publisher'
 def jenkinsNodeType = 'linux'
 
-def utils = new Utils();
-        
 node(jenkinsNodeType) {
     echo 'Processing started'
 
