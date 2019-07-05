@@ -17,7 +17,7 @@ import org.xml.sax.SAXException;
 
 def jenkinsNodeType = 'linux'
 
-node(jenkinsNodeType) {
+node() {
     echo 'Processing started'
 
     stage('Checkout') {
