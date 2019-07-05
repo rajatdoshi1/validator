@@ -1,0 +1,78 @@
+<joblist>
+  <job>
+    <context>
+      <options preserveOrder='true'>
+        <option name='LoginName'>
+          <description><![CDATA[Provide login name.
+Login name is equivalent to SAM name in AD]]></description>
+          <label>Login Name</label>
+        </option>
+        <option name='UserName'>
+          <description>Provide User name.</description>
+          <label>User Name</label>
+        </option>
+        <option enforcedvalues='true' name='SubOU' required='true' values='Analysts,Developers,TechOps'>
+          <description>Account Type</description>
+          <label>Account Type</label>
+        </option>
+        <option delimiter=',' enforcedvalues='true' multivalued='true' name='Groups' required='true' values='Devs,ISTRAnalysts,ManualInsertAnalysts,TechOps,TechOpsPAAdmin,TechOpsRDSAdmin,TechOpsRDSReadOnly,TechOpsSQLStdDBA'>
+          <description>Account Groups</description>
+          <label>Account Groups</label>
+        </option>
+        <option name='JiraIssue' required='true'>
+          <label>JIRA case Id</label>
+        </option>
+      </options>
+    </context>
+    <defaultTab>summary</defaultTab>
+    <description><![CDATA[Job to add an AD account in css-si domain.
+Parameters:
+1. Login Name - Active directory login name
+2. User Name - Full name of user for whom the account is being created
+3. Account Type - There are multiple acccount types for CSS Users. Please check the JIRA ticket for picking the correct account type for the account being created.
+4. Account Groups - These groups control type of access to systems and services under css-si domain
+5. JIRA Case Id - JIRA case associated for this change]]></description>
+    <executionEnabled>true</executionEnabled>
+    <group>User Management</group>
+    <id>0dadb186-ce7d-4e27-8ff4-059b158ff921</id>
+    <loglevel>INFO</loglevel>
+    <name>Create New AD Account</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <notification>
+      <onfailure>
+        <plugin type='JIRA'>
+          <configuration>
+            <entry key='issue key' value='${option.JiraIssue}' />
+          </configuration>
+        </plugin>
+        <plugin type='SlackNotification'></plugin>
+      </onfailure>
+      <onstart>
+        <plugin type='SlackNotification'></plugin>
+      </onstart>
+      <onsuccess>
+        <plugin type='JIRA'>
+          <configuration>
+            <entry key='issue key' value='${option.JiraIssue}' />
+          </configuration>
+        </plugin>
+        <plugin type='SlackNotification'></plugin>
+      </onsuccess>
+    </notification>
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+	  <command>
+        <description>Validate JIRA case</description>
+        <step-plugin type='JIRA-Issue-Exists'>
+          <configuration>
+            <entry key='issue-key' value='${option.JiraIssue}' />
+          </configuration>
+        </step-plugin>
+      </command>
+      <command>
+        <exec>python3.6 "./work/scm/$RD_JOB_PROJECT/libraryfunctions/execute_powershell.py" /tmp/CreateADAccount.ps1 Create-ADUserAccount -targetADUser "$RD_OPTION_LOGINNAME" -userName "$RD_OPTION_USERNAME" -subOU "$RD_OPTION_SUBOU" -jiraCaseId "$RD_OPTION_JIRAISSUE" -selectedGroups "$RD_OPTION_GROUPS"</exec>
+      </command>
+    </sequence>
+    <uuid>0dadb186-ce7d-4e27-8ff4-059b158ff921</uuid>
+  </job>
+</joblist>
